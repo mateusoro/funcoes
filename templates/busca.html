@@ -1,0 +1,73 @@
+<html style="color: white; background-color: #1976D2 !important;">
+
+<head>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Atualizar Stremio</title>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js">
+
+	</script>
+	
+	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I="
+	 crossorigin="anonymous">
+	</script>
+	
+	<script type="text/javascript" charset="utf-8">
+		//https://v3-cinemeta.strem.io/meta/series/tt0096697.json			
+
+		$(document).ready(function(){
+				$.urlParam = function(name){
+					var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+					if (results==null) {
+						return null;
+					}
+					return results[1] || 0;
+				}
+			
+				var socket = io();
+    	
+				//https://funcoes.mateusoro.repl.co/?remover_preferido=tt1190634
+				if($.urlParam('remover_preferido')){
+					socket.emit('remove_preferido', $.urlParam('remover_preferido'))
+					$('body').append('Removido: '+$.urlParam('remover_preferido')+"\n")
+				}
+				//https://funcoes.mateusoro.repl.co/?apagar=tt5834204
+				if($.urlParam('apagar')){
+					console.log($.urlParam('apagar'));
+					socket.emit('apagar', $.urlParam('apagar'))
+					$('body').append('Apagado: '+$.urlParam('apagar')+"\n")
+				}
+
+				//https://funcoes.mateusoro.repl.co/?preferido=tt1190634
+				if($.urlParam('preferido')){
+					var nome = "";
+					$.get("https://api.themoviedb.org/3/find/"+$.urlParam('preferido')+"?api_key=fda55c79b27aed8a3c9a8a7084d73806&language=pt-BR&external_source=imdb_id", function(data, status){
+						//console.log(data);
+						//console.log(data.tv_results[0]);
+						if(data.tv_results[0]){
+							nome = data.tv_results[0].name || data.tv_results[0].original_name
+						}
+						if(data.movie_results[0]){
+							nome = data.movie_results[0].title || data.movie_results[0].original_title
+						}
+						//console.log(nome);
+						socket.emit('preferido', $.urlParam('preferido'), nome)
+						$('body').append('Adicionado: '+nome+"\n")
+
+					});
+					
+				}
+  		});
+	</script>
+</head>
+
+<body>
+	
+</body>
+
+</html>
